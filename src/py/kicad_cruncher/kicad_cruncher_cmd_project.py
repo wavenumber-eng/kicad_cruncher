@@ -1,7 +1,7 @@
 """New KiCad project scaffolding command (``project create``).
 
-Three front-ends converge on one options object that drives the kicad_monkey
-``create_project`` primitive:
+Three front-ends converge on one options object that drives this repo's
+``create_project`` assembly, which composes kicad_monkey's object model:
 
     flags / jsonc / --tui (form)  ->  KiCadProjectCreateOptions  ->  create_project()
 """
@@ -15,17 +15,20 @@ from typing import TYPE_CHECKING
 
 from kicad_monkey import KICAD_PAGE_SIZES
 
+from kicad_cruncher.kicad_cruncher_project_create import DEFAULT_PAGE_SIZE
+
 if TYPE_CHECKING:
-    from kicad_monkey import KiCadProjectCreateOptions, KiCadProjectCreateResult
+    from kicad_cruncher.kicad_cruncher_project_create import (
+        KiCadProjectCreateOptions,
+        KiCadProjectCreateResult,
+    )
 
 log = logging.getLogger(__name__)
 
 
 def _default_page_size() -> str:
-    """The project-create default page size — owned by kicad_monkey's options."""
-    from kicad_monkey import KiCadProjectCreateOptions
-
-    return KiCadProjectCreateOptions.__dataclass_fields__["page_size"].default
+    """The project-create default page size."""
+    return DEFAULT_PAGE_SIZE
 
 
 def _parse_text_vars(items: list[str] | None) -> dict[str, str]:
@@ -53,7 +56,7 @@ def _parse_lib_specs(items: list[str] | None) -> list[dict[str, str]]:
 
 
 def _options_from_args(args: argparse.Namespace) -> KiCadProjectCreateOptions:
-    from kicad_monkey import KiCadProjectCreateOptions
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
 
     return KiCadProjectCreateOptions(
         name=args.name,
@@ -97,7 +100,7 @@ def _prompt_text_vars(initial: dict[str, str]) -> dict[str, str]:
 
 def _interactive_options(args: argparse.Namespace) -> KiCadProjectCreateOptions:
     """Prompt fallback for ``--tui`` when textual is unavailable."""
-    from kicad_monkey import KiCadProjectCreateOptions
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
 
     print("\n  NEW KICAD PROJECT  (press Enter to accept the [default])\n")
     name = ""
@@ -159,7 +162,7 @@ def _emit_config(out: Path) -> int:
 
 def _resolve_tui_options(args: argparse.Namespace) -> KiCadProjectCreateOptions | None:
     """Options from the interactive form (or prompt fallback); None if cancelled."""
-    from kicad_monkey import KiCadProjectCreateOptions
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
 
     try:
         from kicad_cruncher.kicad_cruncher_project_create_tui import run_project_create_tui
@@ -187,8 +190,7 @@ def _log_result(result: KiCadProjectCreateResult, options: KiCadProjectCreateOpt
 
 def cmd_project_create(args: argparse.Namespace) -> int:
     """Scaffold a new KiCad project."""
-    from kicad_monkey import create_project
-
+    from kicad_cruncher.kicad_cruncher_project_create import create_project
     from kicad_cruncher.kicad_cruncher_project_create_config import options_from_config
 
     if args.emit_config is not None:

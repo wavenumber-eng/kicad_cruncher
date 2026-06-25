@@ -60,7 +60,45 @@ kicad-cruncher project create --tui</code></pre>
 
 <section id="tests">
   <h2>Tests</h2>
-  <p>L0 public CLI tests verify the command appears in root help, command help starts, and the manifest/design-doc inventory stays synchronized. Command-level tests cover flag-to-options mapping, the JSONC config emit/load round-trip, and the interactive form submission. The underlying <code>create_project</code> primitive is covered by <code>kicad-monkey</code>'s own test suite, including KiCad CLI validation of the generated schematic.</p>
+  <p>L0 public CLI tests verify the command appears in root help, command help starts, and the manifest/design-doc inventory stays synchronized. Command-level tests cover flag-to-options mapping, the JSONC config emit/load round-trip, the interactive form submission, and end-to-end project scaffolding through <code>create_project</code>. The underlying KiCad construction (the <code>KiCadProject</code> aggregate, schematic, board, library tables, and worksheet embedding) is owned and covered by <code>kicad-monkey</code>'s own test suite, including KiCad CLI validation of the generated schematic.</p>
+</section>
+
+<section id="interfaces">
+  <h2>Interfaces</h2>
+
+  <section
+    id="kicad-project-create-options"
+    data-interface="KiCadProjectCreateOptions"
+    data-rack-stratum="L0_public_cli"
+    data-test-file="tests/L0_public_cli/test_L0_002_project_create.py"
+    data-test-target="test_options_from_args_maps_all_fields">
+    <h3>KiCadProjectCreateOptions</h3>
+    <h4>Rationale</h4>
+    <p>The command has three front-ends (flags, JSONC config, and the interactive <code>--tui</code> form). A single typed options schema keeps them in lockstep: adding one field gives every front-end the same knob, and the config keys map one-to-one to it.</p>
+    <h4>Purpose</h4>
+    <p><code>KiCadProjectCreateOptions</code> is the application-level options record for a new project — name, directory, page size, sheet/title-block metadata, worksheet embed/reference, optional PCB, library-table seeding, and text variables. It lives in <code>kicad_cruncher</code> because it encodes command ergonomics, not KiCad file structure.</p>
+    <h4>Test Requirements</h4>
+    <p>L0 verifies that flags map onto every field, that the command default page size is applied, that the JSONC config round-trips against the schema, and that the interactive form yields a valid options payload.</p>
+    <h4>Working Definition</h4>
+    <p>The interface is working when each front-end produces an equivalent <code>KiCadProjectCreateOptions</code> that <code>create_project</code> can consume without further interpretation.</p>
+  </section>
+
+  <section
+    id="kicad-project-create-result"
+    data-interface="KiCadProjectCreateResult"
+    data-rack-stratum="L0_public_cli"
+    data-test-file="tests/L0_public_cli/test_L0_002_project_create.py"
+    data-test-target="test_cmd_flags_scaffold_project">
+    <h3>KiCadProjectCreateResult</h3>
+    <h4>Rationale</h4>
+    <p>Callers and the command's own logging need to report exactly which files a scaffold produced without re-deriving paths, so the assembly returns them explicitly.</p>
+    <h4>Purpose</h4>
+    <p><code>KiCadProjectCreateResult</code> records the written paths — project directory, <code>.kicad_pro</code>, top-level <code>.kicad_sch</code>, optional worksheet, optional board, and the symbol/footprint library tables — produced by <code>create_project</code>.</p>
+    <h4>Test Requirements</h4>
+    <p>L0 scaffolds a project from flags (and from a JSONC config) and asserts the expected files exist on disk at the returned paths.</p>
+    <h4>Working Definition</h4>
+    <p>The interface is working when every non-null path on the result refers to a file that <code>create_project</code> actually wrote for the requested options.</p>
+  </section>
 </section>
 </main>
 </body>

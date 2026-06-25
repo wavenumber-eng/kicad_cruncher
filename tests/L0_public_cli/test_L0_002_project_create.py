@@ -2,8 +2,9 @@
 
 Covers the cruncher's input-gathering layers — flag parsing, JSONC config
 load/emit, and the interactive TUI submission — plus the command's end-to-end
-behavior. The underlying ``create_project`` primitive is owned and tested by
-``kicad-monkey``; here we verify the cruncher maps every front-end onto it.
+behavior and the ``create_project`` assembly it owns. The underlying KiCad
+construction is owned and tested by ``kicad-monkey``; here we verify the cruncher
+maps every front-end onto its options and composes the project correctly.
 """
 
 from __future__ import annotations
@@ -77,11 +78,10 @@ def test_options_from_args_maps_all_fields() -> None:
     assert opts.footprint_libraries == [{"name": "F", "uri": "u.pretty"}]
 
 
-def test_options_from_args_default_page_size_comes_from_kicad_monkey() -> None:
-    from kicad_monkey import KiCadProjectCreateOptions
+def test_options_from_args_default_page_size_is_command_default() -> None:
+    from kicad_cruncher.kicad_cruncher_project_create import DEFAULT_PAGE_SIZE
 
-    expected = KiCadProjectCreateOptions.__dataclass_fields__["page_size"].default
-    assert _options_from_args(_ns(name="X")).page_size == expected
+    assert _options_from_args(_ns(name="X")).page_size == DEFAULT_PAGE_SIZE
 
 
 # --- JSONC config ----------------------------------------------------------
@@ -145,8 +145,8 @@ def test_cmd_config_scaffolds_project(tmp_path: Path) -> None:
 # --- interactive TUI -------------------------------------------------------
 
 def test_tui_submit_builds_valid_options() -> None:
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
     from kicad_cruncher.kicad_cruncher_project_create_tui import ProjectCreateApp
-    from kicad_monkey import KiCadProjectCreateOptions
 
     async def run() -> dict | None:
         app = ProjectCreateApp({

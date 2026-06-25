@@ -1,14 +1,14 @@
 """JSONC config for ``kcr project create`` (load + emit a commented default).
 
-The config keys map 1:1 to ``kicad_monkey.KiCadProjectCreateOptions`` — the same
-schema the flags and the ``--cli`` TUI populate.
+The config keys map 1:1 to this repo's ``KiCadProjectCreateOptions`` — the same
+schema the flags and the ``--tui`` form populate.
 """
 
 from __future__ import annotations
 
 from dataclasses import fields
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from kicad_cruncher.config_json import (
     JsoncCommentMap,
@@ -17,14 +17,14 @@ from kicad_cruncher.config_json import (
 )
 
 if TYPE_CHECKING:
-    from kicad_monkey import KiCadProjectCreateOptions
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
 
 
 def default_config() -> dict:
-    """An example config — every default sourced from kicad_monkey's options."""
+    """An example config — every default sourced from the options schema."""
     from dataclasses import asdict
 
-    from kicad_monkey import KiCadProjectCreateOptions
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
 
     return asdict(KiCadProjectCreateOptions(name="My First Project", directory="."))
 
@@ -68,7 +68,7 @@ _COMMENTS: JsoncCommentMap = {
 _HEADER = (
     "kcr project create — configuration",
     "Edit, then run:  kcr project create --config this-file.jsonc",
-    "Every key maps to a kicad_monkey KiCadProjectCreateOptions field.",
+    "Every key maps to a KiCadProjectCreateOptions field.",
 )
 
 
@@ -81,7 +81,7 @@ def default_config_text() -> str:
 
 def options_from_config(path: Path) -> KiCadProjectCreateOptions:
     """Load a JSONC config into a ``KiCadProjectCreateOptions``."""
-    from kicad_monkey import KiCadProjectCreateOptions
+    from kicad_cruncher.kicad_cruncher_project_create import KiCadProjectCreateOptions
 
     raw = load_json_config(path)
     valid = {f.name for f in fields(KiCadProjectCreateOptions)}
@@ -90,4 +90,4 @@ def options_from_config(path: Path) -> KiCadProjectCreateOptions:
         raise ValueError(f"unknown config keys: {', '.join(unknown)}")
     if not raw.get("name"):
         raise ValueError("config must set a non-empty 'name'")
-    return KiCadProjectCreateOptions(**raw)
+    return KiCadProjectCreateOptions(**cast("dict[str, Any]", raw))
