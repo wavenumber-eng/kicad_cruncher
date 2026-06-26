@@ -112,7 +112,10 @@ def create_project(options: KiCadProjectCreateOptions) -> KiCadProjectCreateResu
     base = Path(options.directory)
     project_dir = base / name if options.create_subdirectory else base
 
-    project = KiCadProject(name, project_dir)
+    # KiCadProject.create is kicad_monkey's canonical public constructor for a
+    # new on-disk project (seeds the default .kicad_pro and binds name/directory);
+    # the bare KiCadProject(...) dataclass constructor is the existing-JSON facade.
+    project = KiCadProject.create(name, project_dir)
     for key, value in options.text_variables.items():
         project.set_text_variable(key, value)
 
