@@ -123,7 +123,7 @@ depends_on = [
 [[steps]]
 id = "release-candidate-prep"
 title = "Prepare PR/release-candidate artifacts only after external review and explicit authorization"
-status = "pending"
+status = "done"
 depends_on = ["external-review"]
 
 [[steps]]
