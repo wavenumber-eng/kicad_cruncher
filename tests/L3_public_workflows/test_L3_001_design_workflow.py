@@ -18,6 +18,7 @@ from kicad_cruncher.config_json import load_json_config
 from kicad_cruncher.kicad_cruncher_cmd_design import (
     _PCB_TRACE_COLOR,
     _cached_pcb_review_svg_text,
+    _pcb_copper_layers,
     _style_pcb_review_svg,
 )
 from kicad_cruncher.kicad_cruncher_cmd_pcb_svg import (
@@ -74,6 +75,13 @@ _CORPUS_CHARGE_INDICATOR_PCB = (
 )
 _CORPUS_TAILLIGHT_PCB = (
     _CORPUS_ROOT / "projects" / "taillight" / "input" / "11-10045__taillight__C.kicad_pcb"
+)
+_CORPUS_SPEEDY_PCB = (
+    _CORPUS_ROOT
+    / "projects"
+    / "speedy_processing_module"
+    / "input"
+    / "11-10084__speedy_processing_module__B.kicad_pcb"
 )
 _CORPUS_PROJECT_CASES = (
     pytest.param(
@@ -492,12 +500,23 @@ def _review_svgs_by_source_uuid(
     return svg_by_uuid
 
 
-def test_cached_pcb_review_renderer_matches_direct_to_svg_contract() -> None:
+@pytest.mark.parametrize(
+    ("pcb_path", "layers"),
+    (
+        pytest.param(_CORPUS_TAILLIGHT_PCB, ("F.Cu", "B.Cu"), id="taillight-two-layers"),
+        pytest.param(_CORPUS_SPEEDY_PCB, None, id="speedy-all-copper-layers"),
+    ),
+)
+def test_cached_pcb_review_renderer_matches_direct_to_svg_contract(
+    pcb_path: Path,
+    layers: tuple[str, ...] | None,
+) -> None:
     """Verify cached design-review rendering preserves direct SVG semantics."""
-    pcb = KiCadPcb.from_file(_CORPUS_TAILLIGHT_PCB)
+    pcb = KiCadPcb.from_file(pcb_path)
     render_cache = PcbSvgCompositionRenderCache(pcb)
+    selected_layers = _pcb_copper_layers(pcb) if layers is None else list(layers)
 
-    for layer in ("F.Cu", "B.Cu"):
+    for layer in selected_layers:
         direct_svg = pcb.to_svg(
             layers=[layer, "Edge.Cuts"],
             fill=_PCB_TRACE_COLOR,

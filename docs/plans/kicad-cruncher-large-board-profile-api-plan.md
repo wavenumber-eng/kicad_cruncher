@@ -114,7 +114,7 @@ depends_on = ["behavior-performance-signoff"]
 [[steps]]
 id = "external-review"
 title = "Obtain external review before release preparation or publish authorization"
-status = "active"
+status = "done"
 depends_on = [
   "design-doc-intent-audit",
   "test-runtime-impact-audit",
@@ -190,7 +190,7 @@ status = "met"
 [[exit_criteria]]
 id = "external-review"
 title = "External review approves research, implementation scope, and release-facing artifacts before release authorization"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-no-release-without-authorization"
@@ -200,7 +200,7 @@ status = "pending"
 
 # KiCad Cruncher Large-Board Profile And API Decision Plan
 
-Status: active; implementation complete and paused at external review.
+Status: active; external review complete and paused before release-candidate prep.
 
 This plan tracks a `kicad_cruncher` performance and API-fit effort for large
 board workflows. It is a working artifact only. Per ADR-0003, durable results
