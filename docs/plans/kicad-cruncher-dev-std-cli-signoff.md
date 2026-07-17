@@ -70,25 +70,25 @@ depends_on = ["requirements-and-release-governance"]
 [[steps]]
 id = "release-candidate-prep"
 title = "Prepare kicad_cruncher release-candidate metadata after signoff passes"
-status = "active"
+status = "pending"
 depends_on = ["signoff-wiring"]
 
 [[steps]]
 id = "design-doc-intent-audit"
 title = "Audit CLI docs, design docs, ADRs, requirements, release docs, and tests against implementation intent"
-status = "pending"
-depends_on = ["release-candidate-prep"]
+status = "done"
+depends_on = ["signoff-wiring"]
 
 [[steps]]
 id = "test-runtime-impact-audit"
 title = "Record changed test coverage and runtime impact"
 status = "done"
-depends_on = ["release-candidate-prep"]
+depends_on = ["signoff-wiring"]
 
 [[steps]]
 id = "external-review"
 title = "Obtain final independent review after implementation and validation"
-status = "pending"
+status = "active"
 depends_on = [
   "design-doc-intent-audit",
   "test-runtime-impact-audit",
@@ -103,7 +103,7 @@ depends_on = ["external-review"]
 [[exit_criteria]]
 id = "ec-plan-reviewed"
 title = "Independent review approves the scope, sequencing, and release gates"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-latest-dependencies"
@@ -128,7 +128,7 @@ status = "met"
 [[exit_criteria]]
 id = "design-doc-intent-audit"
 title = "CLI docs, design docs, ADRs, requirements, contracts, release docs, and tests match implemented behavior"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "test-runtime-impact-audit"
@@ -197,9 +197,19 @@ Implemented on 2026-07-17:
   `docs.requirements`, and `docs.release`.
 - The three legacy plan files were removed after their durable obligations were
   represented in existing design docs and new requirements.
+- External review found that several unfinished obligations from the deleted
+  active plans needed more explicit durable homes. They are now tracked in:
+  `docs/plugin/requirements/plugin-req-001-daemon-live-validation.md`,
+  `docs/plugin/requirements/plugin-req-002-footprint-hlr-daemon-tool.md`,
+  `docs/schematic/requirements/schematic-req-001-clean-config-contract.md`,
+  `docs/pcb-svg/requirements/pcb-svg-req-001-assembly-validation-and-selectors.md`,
+  and `docs/library/requirements/library-req-001-extraction-hardening.md`.
+- Runtime-impact validation was moved to
+  `docs/research/2026-07-17-kicad-cruncher-dev-std-cli-signoff-validation.md`
+  so it survives plan deletion.
 - No package version bump, release note, tag, GitHub Release, or PyPI publish
-  occurred. External review and explicit user authorization remain required
-  before release.
+  occurred. Green PR CI, external review, and explicit user authorization remain
+  required before release.
 
 Validation completed on 2026-07-17:
 
