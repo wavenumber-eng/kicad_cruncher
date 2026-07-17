@@ -11,16 +11,22 @@ title = "Create profiling branch and active dev-std plan"
 status = "done"
 
 [[steps]]
-id = "kicad-monkey-floor-refresh"
-title = "Repin kicad-monkey floor to the latest released dependency and refresh the lock"
-status = "pending"
-depends_on = ["branch-and-plan-bootstrap"]
-
-[[steps]]
 id = "command-surface-inventory"
 title = "Inventory Cruncher commands and APIs that load PCB, design-review, SVG, STEP, DRC-adjacent, BOM, PnP, or project data"
 status = "pending"
 depends_on = ["branch-and-plan-bootstrap"]
+
+[[steps]]
+id = "pre-floor-headline-baseline"
+title = "Capture or explicitly reject a 2026.7.16-lock headline baseline before dependency refresh"
+status = "pending"
+depends_on = ["command-surface-inventory"]
+
+[[steps]]
+id = "kicad-monkey-floor-refresh"
+title = "Repin kicad-monkey floor to the latest released dependency and refresh the lock"
+status = "pending"
+depends_on = ["pre-floor-headline-baseline"]
 
 [[steps]]
 id = "large-board-baseline-harness"
@@ -128,12 +134,17 @@ depends_on = ["release-candidate-prep"]
 
 [[exit_criteria]]
 id = "ec-kicad-monkey-floor-current"
-title = "kicad-cruncher depends on kicad-monkey >= 2026.7.17 and the lock resolves a final release"
+title = "kicad-cruncher depends on kicad-monkey >= 2026.7.17 or a newer final release and the lock resolves that final release"
 status = "pending"
 
 [[exit_criteria]]
 id = "ec-command-surface-inventoried"
-title = "Every PCB, design-review, SVG, STEP, BOM, PnP, and project read path has an owner and cost model"
+title = "Every PCB, design-review, SVG, STEP, BOM, PnP, and project read path has an owning command/module and cost model"
+status = "pending"
+
+[[exit_criteria]]
+id = "ec-floor-comparison-recorded"
+title = "A 2026.7.16-lock headline baseline is captured before repin, or skipped with recorded rationale"
 status = "pending"
 
 [[exit_criteria]]
@@ -198,9 +209,13 @@ contracts, or tests before release, and this plan must be deleted at closeout.
 
 ## Strategy
 
-Start by repinning `kicad-monkey` to the latest released floor,
-`kicad-monkey>=2026.7.17`, and refreshing `uv.lock` so every timing and API
-decision uses the current Monkey parser/projection/rendering behavior.
+Start by inventorying the command surface and, where practical, capturing a
+small locked-floor baseline on the current `kicad-monkey 2026.7.16` lock for
+one or two headline workflows. If that baseline is skipped, record the reason
+before the dependency refresh. Then repin `kicad-monkey` to the latest released
+floor, at least `kicad-monkey>=2026.7.17`, and refresh `uv.lock` so the main
+timing and API decisions use the current Monkey parser/projection/rendering
+behavior.
 
 Then inventory and profile the Cruncher workflows that touch large PCB or
 project data. The goal is to find cheap, low-risk command-level improvements
@@ -215,7 +230,13 @@ and PyPI publishing require explicit user authorization.
 
 ## Known Inputs
 
-`kicad-monkey` `2026.7.17` is the required input release. Its
+`kicad-monkey` `2026.7.17` is the minimum required input release for
+release-facing evidence. On July 17, 2026, PyPI resolved `kicad-monkey`
+`2026.7.17` and the GitHub remote advertised tag `v2026.7.17`. If a later
+environment cannot resolve that published floor, `kicad-monkey-floor-refresh`
+is blocked for release-facing baselines. Research-only baselines may use a
+local path or git pin to Monkey main, but any release note or public timing
+claim must be recaptured on a final published dependency. The
 `docs/guides/project-workflows.html` guide is the durable upstream guidance for
 choosing between full design objects, PCB projection, targeted schematic
 readers, IR/SVG rendering, and project-level workflows.
@@ -295,6 +316,8 @@ Research must at least evaluate these candidates:
 
 - Use the PCB SVG compositor cache or an equivalent command-scoped render cache
   in `design/dr` for the per-copper-layer PCB review SVG loop.
+- Keep any render cache scoped to a single command invocation unless a reviewed
+  design explicitly defines invalidation for daemon or plugin lifetimes.
 - Ensure `pcb-svg` only asks Monkey/Geometer for families needed by selected
   views and configured virtual layers.
 - Avoid repeated board/project path resolution and repeated parse work across a
@@ -314,10 +337,18 @@ Research must at least evaluate these candidates:
 Each candidate selected for implementation must have:
 
 - baseline timing evidence from at least three rounds where practical;
+- a pinned harness for before/after claims: same command, input corpus,
+  options, dependency floor, host class, and timing method unless a difference
+  is explicitly called out as non-comparable;
 - public corpus or synthetic reproduction instructions;
 - behavior-preserving tests focused on the changed path;
 - no output contract drift unless design docs and tests approve the change;
 - an explicit accept/reject/defer decision in the plan log.
+
+Any cache whose lifetime exceeds a single command invocation must include a
+render -> mutate -> render invalidation test before acceptance. The daemon and
+plugin surfaces are long-lived enough that stale render or board state is a
+correctness issue, not only a performance issue.
 
 Conditional steps such as `cruncher-cheap-window-implementation` can be marked
 done by implementation or by a rejection log if research shows no Cruncher-local
@@ -329,9 +360,13 @@ pretending rejected candidates were implemented.
 Research validation:
 
 - record command-surface inventory in a plan log;
+- capture or explicitly reject a small `kicad-monkey 2026.7.16` locked-floor
+  headline baseline before the dependency refresh;
 - capture fresh baselines on this branch after `kicad-monkey>=2026.7.17`;
 - compare full-model, project-level, projection, and targeted-reader choices
   only where the output contract makes those choices plausible;
+- compare before/after timings only with the same pinned harness, and label
+  harness-sensitive measurements as directional rather than release claims;
 - have an independent agent reproduce the research before implementation.
 
 Implementation validation:
