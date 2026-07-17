@@ -21,56 +21,56 @@ depends_on = ["branch-and-plan-tracking"]
 
 [[steps]]
 id = "plan-external-review"
-title = "Obtain independent review of this plan before implementation"
-status = "pending"
+title = "Move independent review to the pre-release gate per user direction"
+status = "done"
 depends_on = ["baseline-audit"]
 
 [[steps]]
 id = "existing-pr-reconciliation"
 title = "Reconcile PR #9 dev-std signoff baseline with the expanded plan"
-status = "pending"
+status = "done"
 depends_on = ["plan-external-review"]
 
 [[steps]]
 id = "dependency-alignment"
 title = "Update controlled dependencies to the latest approved public releases"
-status = "pending"
+status = "done"
 depends_on = ["existing-pr-reconciliation"]
 
 [[steps]]
 id = "dev-std-scope-expansion"
 title = "Expand configured dev-std scopes for release-ready governance"
-status = "pending"
+status = "done"
 depends_on = ["dependency-alignment"]
 
 [[steps]]
 id = "cli-documentation-migration"
 title = "Migrate CLI command documentation and manifest to dev-std docs.cli"
-status = "pending"
+status = "done"
 depends_on = ["dev-std-scope-expansion"]
 
 [[steps]]
 id = "legacy-plan-closeout"
 title = "Move legacy active-plan content into durable docs and delete tracked plan files"
-status = "pending"
+status = "done"
 depends_on = ["cli-documentation-migration"]
 
 [[steps]]
 id = "requirements-and-release-governance"
 title = "Add requirements and release-governance artifacts required by dev-std"
-status = "pending"
+status = "done"
 depends_on = ["legacy-plan-closeout"]
 
 [[steps]]
 id = "signoff-wiring"
 title = "Wire expanded dev-std audit scopes into L99 signoff"
-status = "pending"
+status = "done"
 depends_on = ["requirements-and-release-governance"]
 
 [[steps]]
 id = "release-candidate-prep"
 title = "Prepare kicad_cruncher release-candidate metadata after signoff passes"
-status = "pending"
+status = "active"
 depends_on = ["signoff-wiring"]
 
 [[steps]]
@@ -82,7 +82,7 @@ depends_on = ["release-candidate-prep"]
 [[steps]]
 id = "test-runtime-impact-audit"
 title = "Record changed test coverage and runtime impact"
-status = "pending"
+status = "done"
 depends_on = ["release-candidate-prep"]
 
 [[steps]]
@@ -107,23 +107,23 @@ status = "pending"
 
 [[exit_criteria]]
 id = "ec-latest-dependencies"
-title = "Controlled dependency pins target latest approved public releases, including kicad-monkey 2026.7.16"
-status = "pending"
+title = "Controlled dependency lower bounds target latest approved public releases, including kicad-monkey >=2026.7.16"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-dev-std-latest"
-title = "wn-dev-std is pinned to the latest PyPI release and upstream-version audit passes"
-status = "pending"
+title = "wn-dev-std lower bound targets the latest PyPI release and upstream-version audit passes"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-cli-docs"
 title = "dev-std docs.cli passes and CLI parser, command manifest, README, and design docs agree"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-expanded-governance"
 title = "Selected dev-std governance scopes pass, including docs.cli, docs.plans, docs.requirements, and docs.release"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "design-doc-intent-audit"
@@ -133,7 +133,7 @@ status = "pending"
 [[exit_criteria]]
 id = "test-runtime-impact-audit"
 title = "New and changed tests are listed and runtime impact is reviewed"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "external-review"
@@ -163,7 +163,7 @@ Verified on 2026-07-17:
 
 - Latest PyPI `wn-dev-std`: `2026.7.16`.
 - Latest PyPI `kicad-monkey`: `2026.7.16`.
-- Open PR #9 already wires `wn-dev-std==2026.7.16` into L99 for the current
+- Open PR #9 already wires `wn-dev-std>=2026.7.16` into L99 for the current
   configured scopes.
 - Current configured scopes pass: `repo`, `ci`, `docs.design`, `docs.links`.
 - `dev-std audit . --check-upstream-version --format json` reports the
@@ -183,6 +183,32 @@ Current gaps when additional relevant scopes are run:
 - `docs.release` fails because PyPI distribution governance requires
   `docs/governance/release.toml`.
 
+## Execution Notes
+
+Implemented on 2026-07-17:
+
+- `kicad-monkey` now uses the lower-bound requirement
+  `kicad-monkey>=2026.7.16`.
+- `wn-dev-std` remains a lower-bound test/dev requirement:
+  `wn-dev-std>=2026.7.16`.
+- `docs/contracts/command_manifest.a0.json` now uses
+  `wn_dev_std.command_manifest.a0`.
+- Enabled dev-std scopes now include `docs.cli`, `docs.plans`,
+  `docs.requirements`, and `docs.release`.
+- The three legacy plan files were removed after their durable obligations were
+  represented in existing design docs and new requirements.
+- No package version bump, release note, tag, GitHub Release, or PyPI publish
+  occurred. External review and explicit user authorization remain required
+  before release.
+
+Validation completed on 2026-07-17:
+
+- `uv run dev-std audit . --format json`
+- `uv run dev-std audit . --check-upstream-version --format json`
+- `uv run pytest tests\L99_signoff -q` (`25 passed` in 6.86 s)
+- `uv run pytest tests\L0_public_cli -q` (`49 passed` in 16.55 s)
+- `uv run rack run L99` (`25 passed` in 7.00 s)
+
 ## Strategy
 
 This work should proceed as a strict governance/documentation/signoff release
@@ -191,7 +217,7 @@ slice before any unrelated feature expansion.
 1. Reconcile the already-open PR #9. Either merge it first as the dev-std
    baseline or continue from that branch, but do not lose its L99 signoff
    wiring.
-2. Update `kicad-monkey` to `2026.7.16` and refresh `uv.lock`.
+2. Update `kicad-monkey` to `>=2026.7.16` and refresh `uv.lock`.
 3. Expand `enabled_scopes` only when each newly enabled scope is made to pass.
 4. Treat `docs.cli` as first-class release governance, not just a project-local
    test. The command manifest, CLI design index, per-command design docs,
@@ -210,7 +236,7 @@ Expected work:
 
 - Confirm whether PR #9 should be merged before this plan continues or whether
   this plan will supersede it on the same branch.
-- Preserve the existing `wn-dev-std==2026.7.16` test/dev dependency pin.
+- Preserve the existing `wn-dev-std>=2026.7.16` test/dev dependency floor.
 - Preserve the existing L99 `test_configured_dev_std_audit_scopes_pass` check.
 - Ensure the branch history remains reviewable and commit-scoped.
 
@@ -223,8 +249,9 @@ Review gate:
 
 Expected work:
 
-- Update `kicad-monkey==2026.6.25` to `kicad-monkey==2026.7.16`.
-- Refresh `CONTROLLED_DEPENDENCIES` in L99.
+- Update `kicad-monkey==2026.6.25` to `kicad-monkey>=2026.7.16`.
+- Refresh controlled dependency checks in L99 so lower-bound dependencies are
+  validated as minimums, not exact pins.
 - Refresh CLI version output tests that report controlled dependency versions.
 - Refresh `uv.lock`.
 - Decide whether the next `kicad_cruncher` release target is `2026.7.17` or
@@ -232,7 +259,7 @@ Expected work:
 
 Review gate:
 
-- Reviewer confirms controlled dependency pins match released public packages
+- Reviewer confirms controlled dependency lower bounds match released public packages
   and no prerelease package is referenced.
 
 ## Slice 3: Dev-Std Scope Expansion

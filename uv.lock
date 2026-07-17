@@ -440,7 +440,7 @@ requires-dist = [
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "jsonschema", marker = "extra == 'test'", specifier = ">=4.22.0" },
-    { name = "kicad-monkey", specifier = "==2026.6.25" },
+    { name = "kicad-monkey", specifier = ">=2026.7.16" },
     { name = "openpyxl", specifier = ">=3.1.0" },
     { name = "pyright", marker = "extra == 'test'", specifier = ">=1.1.390" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0.0" },
@@ -449,7 +449,7 @@ requires-dist = [
     { name = "textual", specifier = ">=0.50.0" },
     { name = "twine", marker = "extra == 'test'", specifier = ">=5.0.0" },
     { name = "uvicorn", specifier = ">=0.30.0" },
-    { name = "wn-dev-std", marker = "python_full_version >= '3.12' and extra == 'test'", specifier = "==2026.7.16" },
+    { name = "wn-dev-std", marker = "python_full_version >= '3.12' and extra == 'test'", specifier = ">=2026.7.16" },
     { name = "wn-geometer", specifier = "==2026.6.10" },
     { name = "wn-rack", marker = "extra == 'test'", specifier = ">=1.1.0" },
 ]
@@ -464,13 +464,13 @@ dev = [
     { name = "pytest-json-report", specifier = ">=1.5.0" },
     { name = "ruff", specifier = ">=0.8.0" },
     { name = "twine", specifier = ">=5.0.0" },
-    { name = "wn-dev-std", marker = "python_full_version >= '3.12'", specifier = "==2026.7.16" },
+    { name = "wn-dev-std", marker = "python_full_version >= '3.12'", specifier = ">=2026.7.16" },
     { name = "wn-rack", specifier = ">=1.1.0" },
 ]
 
 [[package]]
 name = "kicad-monkey"
-version = "2026.6.25"
+version = "2026.7.16"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
@@ -481,9 +481,9 @@ dependencies = [
     { name = "uharfbuzz" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/79/20d78c379512e88a87932a9eb2d6c648f640830372c018192938de9a3662/kicad_monkey-2026.6.25.tar.gz", hash = "sha256:0c0e13ce433359a16e36fd780ad89d834a57247ed04475f56db2e8657a82fc91", size = 3008992, upload-time = "2026-06-25T15:15:07.064Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6b/4a/f34494580fed7a3f7f631897bc2891ab13d728316d12b9bc98e137a9b09c/kicad_monkey-2026.7.16.tar.gz", hash = "sha256:92189a5ef44b5f050c9f1f0c5d3873bc99d30d9e5f37bebd3e7e839cf6913f4a", size = 3022256, upload-time = "2026-07-17T01:27:18.651Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/44/21623fb4a3003deebb4098916ac4811d4b603eeedd20087b88f93305192d/kicad_monkey-2026.6.25-py3-none-any.whl", hash = "sha256:34e25222c862e58430fdd88e24a0a14dff902af5a32337acad077d3ca129123f", size = 678975, upload-time = "2026-06-25T15:15:05.193Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/48/99a77e9773794335afa8ad9cdaa6ceaa5bd59d4fd62ce5bdfbd6074717bd/kicad_monkey-2026.7.16-py3-none-any.whl", hash = "sha256:0d236ef0d6b258c3c6aca7fd2e47a32cf12f71d75fa238f2de0ebcf4673ecf77", size = 679396, upload-time = "2026-07-17T01:27:17.1Z" },
 ]
 
 [[package]]
