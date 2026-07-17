@@ -119,11 +119,20 @@ def _workload_pcb_clean_dry_run(pcb_path: Path) -> TimedCallable:
     return run
 
 
-def _workload_design_pcb_review(project_path: Path, max_layers: int) -> TimedCallable:
+def _workload_design_pcb_review(
+    project_path: Path,
+    max_layers: int,
+    *,
+    cached_svg: bool = False,
+) -> TimedCallable:
     def run() -> JsonObject:
         from kicad_cruncher.kicad_cruncher_cmd_design import (
             _PCB_TRACE_COLOR,
+            _cached_pcb_review_svg_text,
             _style_pcb_review_svg,
+        )
+        from kicad_cruncher.kicad_cruncher_pcb_svg_compositor import (
+            PcbSvgCompositionRenderCache,
         )
         from kicad_monkey import KiCadDesign
 
@@ -161,19 +170,24 @@ def _workload_design_pcb_review(project_path: Path, max_layers: int) -> TimedCal
         layers = _selected_copper_layers(pcb, max_layers)
         svg_bytes = 0
         drill_slot_records = 0
+        render_cache = PcbSvgCompositionRenderCache(pcb) if cached_svg else None
         started = time.perf_counter()
         for layer in layers:
-            svg_text = pcb.to_svg(
-                layers=[layer, "Edge.Cuts"],
-                fill=_PCB_TRACE_COLOR,
-                stroke=_PCB_TRACE_COLOR,
-                black_and_white=False,
-                profile="enriched",
-            )
+            if render_cache is not None:
+                svg_text = _cached_pcb_review_svg_text(pcb, render_cache, layer)
+            else:
+                svg_text = pcb.to_svg(
+                    layers=[layer, "Edge.Cuts"],
+                    fill=_PCB_TRACE_COLOR,
+                    stroke=_PCB_TRACE_COLOR,
+                    black_and_white=False,
+                    profile="enriched",
+                )
             styled_svg, count = _style_pcb_review_svg(str(svg_text), layer)
             svg_bytes += len(styled_svg)
             drill_slot_records += count
-        stage_times["pcb_review_svg_loop"] = time.perf_counter() - started
+        stage_name = "pcb_review_cached_svg_loop" if cached_svg else "pcb_review_svg_loop"
+        stage_times[stage_name] = time.perf_counter() - started
 
         return {
             "project": str(project_path.relative_to(ROOT)),
@@ -253,6 +267,11 @@ def _workloads(args: argparse.Namespace) -> list[tuple[str, TimedCallable]]:
             _required_path(project_path, "--project", "design-pcb-review"),
             args.max_copper_layers,
         ),
+        "design-pcb-review-cached": lambda: _workload_design_pcb_review(
+            _required_path(project_path, "--project", "design-pcb-review-cached"),
+            args.max_copper_layers,
+            cached_svg=True,
+        ),
         "pcb-svg-composition": lambda: _workload_pcb_svg_composition(
             _required_path(pcb_path, "--pcb", "pcb-svg-composition"),
             args.max_copper_layers,
@@ -283,7 +302,7 @@ def main(argv: list[str] | None = None) -> int:
         default="pcb-parse,design-pcb-review,pcb-clean-dry-run,pcb-svg-composition",
         help=(
             "Comma-separated workload names: pcb-parse, design-pcb-review, "
-            "pcb-clean-dry-run, pcb-svg-composition"
+            "design-pcb-review-cached, pcb-clean-dry-run, pcb-svg-composition"
         ),
     )
     parser.add_argument("--output", help="Write JSON result to this path")

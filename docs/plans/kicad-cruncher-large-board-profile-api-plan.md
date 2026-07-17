@@ -58,7 +58,7 @@ depends_on = [
 [[steps]]
 id = "independent-research-review"
 title = "Have an independent agent reproduce the research and check for missed cheap windows before implementation"
-status = "active"
+status = "done"
 depends_on = [
   "large-board-baseline-harness",
   "project-api-fit-research",
@@ -68,31 +68,31 @@ depends_on = [
 [[steps]]
 id = "implementation-scope-decision"
 title = "Approve, reject, or defer each implementation candidate after independent review"
-status = "pending"
+status = "done"
 depends_on = ["independent-research-review"]
 
 [[steps]]
 id = "cruncher-cheap-window-implementation"
 title = "Implement accepted low-risk Cruncher optimizations, or close this step with a rejection log if none qualify"
-status = "pending"
+status = "done"
 depends_on = ["implementation-scope-decision"]
 
 [[steps]]
 id = "api-guidance-doc-updates"
 title = "Update Cruncher CLI/API guidance for large-board read-path choices and any accepted behavior"
-status = "pending"
+status = "done"
 depends_on = ["implementation-scope-decision"]
 
 [[steps]]
 id = "monkey-followup-backlog"
 title = "Record upstream kicad-monkey follow-up work for library-level or native/pull-parser improvements"
-status = "pending"
+status = "done"
 depends_on = ["implementation-scope-decision"]
 
 [[steps]]
 id = "behavior-performance-signoff"
 title = "Verify behavior preservation and record measured performance impact for accepted changes"
-status = "pending"
+status = "done"
 depends_on = [
   "cruncher-cheap-window-implementation",
   "api-guidance-doc-updates",
@@ -102,19 +102,19 @@ depends_on = [
 [[steps]]
 id = "design-doc-intent-audit"
 title = "Audit ADRs, design docs, requirements, CLI docs, and release notes against the accepted outcome"
-status = "pending"
+status = "done"
 depends_on = ["behavior-performance-signoff"]
 
 [[steps]]
 id = "test-runtime-impact-audit"
 title = "Audit test coverage, signoff wiring, and runtime impact for accepted changes"
-status = "pending"
+status = "done"
 depends_on = ["behavior-performance-signoff"]
 
 [[steps]]
 id = "external-review"
 title = "Obtain external review before release preparation or publish authorization"
-status = "pending"
+status = "active"
 depends_on = [
   "design-doc-intent-audit",
   "test-runtime-impact-audit",
@@ -160,32 +160,32 @@ status = "met"
 [[exit_criteria]]
 id = "ec-cheap-windows-implemented-or-rejected"
 title = "Accepted cheap Cruncher optimizations are implemented and tested, or rejected with measured rationale"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-monkey-followups-recorded"
 title = "Library-level improvements that belong in kicad-monkey are recorded as future upstream work"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-behavior-preserved"
 title = "Accepted changes preserve public command output contracts, mutation safety, and rendering semantics"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-signoff-green"
 title = "Relevant focused tests, L99 signoff, and full dev-std audit pass before release preparation"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "design-doc-intent-audit"
 title = "ADRs, design docs, requirements, CLI docs, and release notes match the accepted outcome"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "test-runtime-impact-audit"
 title = "Test additions and runtime impact are reviewed with recorded evidence"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "external-review"
@@ -200,7 +200,7 @@ status = "pending"
 
 # KiCad Cruncher Large-Board Profile And API Decision Plan
 
-Status: active; research paused at independent review before implementation.
+Status: active; implementation complete and paused at external review.
 
 This plan tracks a `kicad_cruncher` performance and API-fit effort for large
 board workflows. It is a working artifact only. Per ADR-0003, durable results
@@ -343,6 +343,10 @@ Each candidate selected for implementation must have:
 - public corpus or synthetic reproduction instructions;
 - behavior-preserving tests focused on the changed path;
 - no output contract drift unless design docs and tests approve the change;
+- explicit SVG `viewBox` and bbox/framing parity for any cached renderer that
+  replaces `pcb.to_svg(...)` in design-review or SVG workflows;
+- at least one all-copper-layer timing run for any release-facing claim about
+  per-layer render-cache speedups;
 - an explicit accept/reject/defer decision in the plan log.
 
 Any cache whose lifetime exceeds a single command invocation must include a
