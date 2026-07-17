@@ -11,6 +11,7 @@ from importlib.metadata import version as distribution_version
 from pathlib import Path
 
 import kicad_cruncher
+import pytest
 from kicad_cruncher._version import cli_version_report, cli_version_text
 
 
@@ -27,6 +28,7 @@ EXPECTED_VERSION = "2026.6.25"
 EXPECTED_RELEASE_DATE = date(2026, 6, 25)
 EXPECTED_RELEASE_NOTE = PACKAGE_ROOT / "docs" / "releases" / "2026-06-25.md"
 CONTROLLED_DEPENDENCIES = {"kicad-monkey": "2026.6.25", "wn-geometer": "2026.6.10"}
+DEV_STD_AUDIT_SCOPES = {"repo", "ci", "docs.design", "docs.links"}
 
 
 def test_version_contract_matches_date_based_release() -> None:
@@ -58,6 +60,34 @@ def test_controlled_dependency_pins_match_latest_release_versions() -> None:
 
     for distribution_name, expected_version in CONTROLLED_DEPENDENCIES.items():
         assert f"{distribution_name}=={expected_version}" in dependencies
+
+
+def test_configured_dev_std_audit_scopes_pass() -> None:
+    """Verify the configured dev-std audit scopes are part of release signoff."""
+    if sys.version_info < (3, 12):
+        pytest.skip("wn-dev-std 2026.7.16 requires Python 3.12")
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "wn_dev_std",
+            "audit",
+            ".",
+            "--format",
+            "json",
+        ],
+        cwd=PACKAGE_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr + completed.stdout
+    payload = json.loads(completed.stdout)
+    assert payload["passed"] is True
+    observed_scopes = {str(check.get("scope")) for check in payload["checks"]}
+    assert DEV_STD_AUDIT_SCOPES.issubset(observed_scopes)
 
 
 def test_cli_emits_package_version() -> None:
