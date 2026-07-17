@@ -27,7 +27,7 @@ PACKAGE_ROOT = _project_root()
 EXPECTED_VERSION = "2026.7.16"
 EXPECTED_RELEASE_DATE = date(2026, 7, 16)
 EXPECTED_RELEASE_NOTE = PACKAGE_ROOT / "docs" / "releases" / "2026-07-16.md"
-CONTROLLED_DEPENDENCIES = {"kicad-monkey": "2026.7.16", "wn-geometer": "2026.6.10"}
+CONTROLLED_DEPENDENCIES = {"kicad-monkey": "2026.7.17", "wn-geometer": "2026.6.10"}
 CONTROLLED_DEPENDENCY_SPECIFIERS = {
     "kicad-monkey": ">=",
     "wn-geometer": "==",

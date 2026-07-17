@@ -13,25 +13,25 @@ status = "done"
 [[steps]]
 id = "command-surface-inventory"
 title = "Inventory Cruncher commands and APIs that load PCB, design-review, SVG, STEP, DRC-adjacent, BOM, PnP, or project data"
-status = "pending"
+status = "done"
 depends_on = ["branch-and-plan-bootstrap"]
 
 [[steps]]
 id = "pre-floor-headline-baseline"
 title = "Capture or explicitly reject a 2026.7.16-lock headline baseline before dependency refresh"
-status = "pending"
+status = "done"
 depends_on = ["command-surface-inventory"]
 
 [[steps]]
 id = "kicad-monkey-floor-refresh"
 title = "Repin kicad-monkey floor to the latest released dependency and refresh the lock"
-status = "pending"
+status = "done"
 depends_on = ["pre-floor-headline-baseline"]
 
 [[steps]]
 id = "large-board-baseline-harness"
 title = "Capture reproducible public or synthetic large-board baselines for candidate Cruncher workflows"
-status = "pending"
+status = "done"
 depends_on = [
   "kicad-monkey-floor-refresh",
   "command-surface-inventory",
@@ -40,7 +40,7 @@ depends_on = [
 [[steps]]
 id = "project-api-fit-research"
 title = "Research whether Cruncher workflows should use KiCadDesign, projection, targeted readers, or existing full-model APIs"
-status = "pending"
+status = "done"
 depends_on = [
   "command-surface-inventory",
   "large-board-baseline-harness",
@@ -49,7 +49,7 @@ depends_on = [
 [[steps]]
 id = "cheap-window-candidate-selection"
 title = "Select low-risk Cruncher optimizations or document rejection with measured rationale"
-status = "pending"
+status = "done"
 depends_on = [
   "large-board-baseline-harness",
   "project-api-fit-research",
@@ -58,7 +58,7 @@ depends_on = [
 [[steps]]
 id = "independent-research-review"
 title = "Have an independent agent reproduce the research and check for missed cheap windows before implementation"
-status = "pending"
+status = "active"
 depends_on = [
   "large-board-baseline-harness",
   "project-api-fit-research",
@@ -135,27 +135,27 @@ depends_on = ["release-candidate-prep"]
 [[exit_criteria]]
 id = "ec-kicad-monkey-floor-current"
 title = "kicad-cruncher depends on kicad-monkey >= 2026.7.17 or a newer final release and the lock resolves that final release"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-command-surface-inventoried"
 title = "Every PCB, design-review, SVG, STEP, BOM, PnP, and project read path has an owning command/module and cost model"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-floor-comparison-recorded"
 title = "A 2026.7.16-lock headline baseline is captured before repin, or skipped with recorded rationale"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-public-large-board-baselines"
 title = "Large-board timing evidence is reproducible from public corpus data or synthetic fixtures"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-project-api-decision"
 title = "The plan records where Cruncher should use project/projection/targeted APIs and where full-model APIs remain correct"
-status = "pending"
+status = "met"
 
 [[exit_criteria]]
 id = "ec-cheap-windows-implemented-or-rejected"
@@ -200,7 +200,7 @@ status = "pending"
 
 # KiCad Cruncher Large-Board Profile And API Decision Plan
 
-Status: active; branch created, execution not started.
+Status: active; research paused at independent review before implementation.
 
 This plan tracks a `kicad_cruncher` performance and API-fit effort for large
 board workflows. It is a working artifact only. Per ADR-0003, durable results
@@ -375,7 +375,7 @@ Implementation validation:
 - representative command smoke tests for `design/dr`, `pcb-svg`, `pcb clean`,
   and `pcb-layer-step` when affected;
 - `uv run dev-std audit . --format json`;
-- `uv run --extra test python tests/rack.py run L99_signoff`;
+- `uv run --extra test rack run L99_signoff`;
 - broader L0/L3/Rack checks when command behavior, docs, or output contracts
   change.
 
