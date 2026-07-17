@@ -129,7 +129,7 @@ depends_on = ["external-review"]
 [[steps]]
 id = "closeout-artifacts"
 title = "Move durable results out of the active plan and delete the plan before release"
-status = "pending"
+status = "done"
 depends_on = ["release-candidate-prep"]
 
 [[exit_criteria]]
@@ -195,7 +195,7 @@ status = "met"
 [[exit_criteria]]
 id = "ec-no-release-without-authorization"
 title = "No tag, GitHub Release, PyPI publish, or public issue response occurs without explicit user authorization"
-status = "pending"
+status = "met"
 +++
 
 # KiCad Cruncher Large-Board Profile And API Decision Plan
